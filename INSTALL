@@ -1,0 +1,66 @@
+# Get the library
+
+* Get the latest version of the library from: https://github.com/akamai-open/imaging-sample-viewers.
+* Unzip the library.
+
+## Getting the Library in Linux
+```
+git clone https://github.com/akamai-open/imaging-sample-viewers.git
+```
+
+# Get dependencies 
+
+* Download Galleria (galleria-1.4.2.zip) from http://galleria.io/download/ and unzip it into lib folder.
+* Copy all files in src/galleria-theme folder into imaging-sample-viewers/lib/galleria/theme/classic.
+* Download Event.js from https://github.com/mark-rolich/Event.js and unzip it into lib folder
+* Download Magnifier.js from https://github.com/mark-rolich/Magnifier.js and unzip it into lib folder
+
+## Getting dependencies using Wget
+
+```
+cd <path to library>/imaging-sample-viewers
+mkdir lib
+wget http://galleria.io/static/galleria-1.4.2.zip
+unzip galleria-1.4.2.zip -d lib
+cp src/galleria_theme/* lib/galleria/themes/classic/
+rm -r galleria-1.4.2.zip src/galleria_theme lib/galleria/plugins lib/galleria/themes/classic/galleria.classic.* lib/galleria/themes/classic/*.html
+wget https://github.com/mark-rolich/Magnifier.js/archive/master.zip
+unzip master.zip -d lib
+mv lib/Magnifier.js-master/ lib/magnifier
+rm -r master.zip lib/magnifier/demo/ lib/magnifier/README.md
+wget https://github.com/mark-rolich/Event.js/archive/master.zip
+unzip master.zip -d lib
+mv lib/Event.js-master/ lib/event
+rm master.zip lib/event/demo.html lib/event/README
+wget https://github.com/driftyco/ionicons/archive/master.zip
+unzip master.zip -d lib
+mkdir lib/ionicons
+cp -r lib/ionicons-master/css lib/ionicons-master/fonts lib/ionicons-master/LICENSE lib/ionicons
+rm -r lib/ionicons-master master.zip
+```
+
+## Getting dependencies using cURL
+
+```
+cd <path to library>/imaging-sample-viewers
+mkdir lib
+curl -O -J -L http://galleria.io/static/galleria-1.4.2.zip
+unzip galleria-1.4.2.zip -d lib
+cp src/galleria_theme/* lib/galleria/themes/classic/
+rm -r galleria-1.4.2.zip src/galleria_theme lib/galleria/plugins lib/galleria/themes/classic/galleria.classic.* lib/galleria/themes/classic/*.html
+curl -O -J -L https://github.com/mark-rolich/Magnifier.js/archive/master.zip
+unzip Magnifier.js-master.zip -d lib
+mv lib/Magnifier.js-master/ lib/magnifier
+rm -r Magnifier.js-master.zip lib/magnifier/demo/ lib/magnifier/README.md
+curl -O -J -L https://github.com/mark-rolich/Event.js/archive/master.zip
+unzip Event.js-master.zip -d lib
+mv lib/Event.js-master/ lib/event
+rm Event.js-master.zip lib/event/demo.html lib/event/README
+curl -O -J -L https://github.com/driftyco/ionicons/archive/master.zip
+unzip ionicons-master.zip -d lib
+mkdir lib/ionicons
+cp -r lib/ionicons-master/css lib/ionicons-master/fonts lib/ionicons-master/LICENSE lib/ionicons
+rm -r lib/ionicons-master ionicons-master.zip
+```
+
+Voila! \\( ˙▿˙　)/ 

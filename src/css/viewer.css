@@ -1,0 +1,57 @@
+/*
+ * Copyright 2015 Akamai Technologies, Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.zoom-lens {
+    background-image: none;
+    background-color: #ffffff;
+    opacity: 0.4;
+}
+.image-slider {
+    position: absolute;
+    width: 50%;
+    left: 25%;
+}
+.lightbox-icon {
+    position: absolute;
+    right: 0%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 20;
+}
+.rotatable-cursor {
+    cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAATlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQDAwMDAwMDAwMDAwMCAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMeclPOAAAAGXRSTlMAAQIDBAkKC46PkJGpsrO05+jp+Pn7/P3+VKa4ewAAAQ5JREFUeNrtVkkOwzAIxNmafU8d/v/R4lbN2miqcqs8Ui4MgxwDBvLw8LiGMcAK5BFRZK6sGAHRLRHBQf+yBlgfEhV9n4tkrzd53xeOxvqKBSlFW3NEKQsqcYD6mgc7cReT2R4g7niyA9fiAvUjz5bbcwA7C+UiYD0PnB1/IRPjEgHo5atOl0gVj0sEqK9PCQt2ZIj1IaTVDpjGLpjETpjCblgPHEGKQKphkeBiW8t04ua7dm142pa7oeTZKHcul0OBB6cU59m+O9ZQ/GMA17H6X9Bfoj6N+kLSl7K+mRz5Zy8OflS1z7p6sOhHGx6uLRiu2vGOFwxzukS8YKwJSz6uOM4aaJcs7Zrn4eFxiQfGSjBSJZcWMwAAAABJRU5ErkJggg==) 32 32, auto;
+}
+.rotatable-icon {
+    position: absolute;
+    height: 25px;
+    width: 25px;
+    z-index: 10;
+}
+.rotatable-prefetch{
+    height: 0px;
+    width: 0px;
+}
+.gallery-thumbnail{
+    float: left;
+    display: block;
+    width: 25px;
+    height: 25px;
+    margin: 2px;
+}
+.galleries-container{
+    display: block;
+    height: 29px;
+}
