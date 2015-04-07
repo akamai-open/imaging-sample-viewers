@@ -1,21 +1,17 @@
 # Akamai Sample Image Viewers
 
-This library visualizes various collections of images in a browser.  
-A collection might represent a particular product on an e-commerce site, or a set of images related to a news article.  
+This library visualizes various collections of images in a browser. A collection might represent a particular product on an e-commerce site, or a set of images related to a news article.
 
-This library integrates directly with Images and Image Collections defined by Akamai's Image Manager.  
-The Image Collection contains all relevant information about which images to display and how images should be organized,
-
+This library integrates directly with Images and Image Collections defined by Akamai's Image Manager. The Image Collection contains all relevant information about which images to display and how images should be organized.
 
 The APIs can be found at: https://developer.akamai.com/api/imaging/imaging/reference.html
-
 
 ## Project organization
 * /src - project sources
 * /lib - 3rd party dependency libraries
 
 ## Install
-See INSTALL for installation instructions.  
+See INSTALL for installation instructions.
 
 ## Getting Started
 * Create a viewer page in HTML including Image Viewer widget. 
