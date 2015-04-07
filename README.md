@@ -13,7 +13,6 @@ The APIs can be found at: https://developer.akamai.com/api/imaging/imaging/refer
 ## Project organization
 * /src - project sources
 * /lib - 3rd party dependency libraries
-* /example - an example app that utilizes the library
 
 ## Install
 See INSTALL for installation instructions.  
@@ -26,14 +25,14 @@ For example:
 
 ```html
 ...
-    <!-- Path below is referenced from the viewer.html in the example folder -->
+    <!-- The file path will be similar to this assuming the HTML file is in root directory of this library -->
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="../lib/galleria/galleria-1.4.2.min.js"></script>
-    <script src="../src/js/image-data.js"></script>
-    <script src="../src/js/image-selector.js"></script>
-    <script src="../src/js/util.js"></script>
-    <script src="../src/js/viewer-object.js"></script>
-    <script src="../src/js/viewers.js"></script>
+    <script src="lib/galleria/galleria-1.4.2.min.js"></script>
+    <script src="src/js/image-data.js"></script>
+    <script src="src/js/image-selector.js"></script>
+    <script src="src/js/util.js"></script>
+    <script src="src/js/viewer-object.js"></script>
+    <script src="src/js/viewers.js"></script>
 ...
 ```
 
@@ -43,10 +42,10 @@ For example:
 
 ```html
 ...
-    <!-- Path below is referenced from the viewer.html in the example folder -->
-    <link rel="stylesheet" href="../lib/ionicons/css/ionicons.min.css">
-    <link rel="stylesheet" href="../src/css/image-data.css">
-    <link rel="stylesheet" href="../src/css/viewer.css">
+    <!-- The file path will be similar to this assuming the HTML file is in root directory of this library -->
+    <link rel="stylesheet" href="lib/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="src/css/image-data.css">
+    <link rel="stylesheet" href="src/css/viewer.css">
 ...
 ```
 
@@ -117,9 +116,6 @@ For example:
 
 * Unit of width and height can be either percent or px. 
 
-## Sample HTML page
-* A sample HTML page has been created and can be found in `example` folder.
-
 ## Magnifier
 
 ### Enable magnifier
@@ -130,12 +126,13 @@ Use following instruction to enable and initialize the magnifier:
 
 ```html
 ...
-    <!-- Path below is referenced from the viewer.html in the example folder -->
+    <!-- The file path will be similar to this assuming the HTML file is in root directory of this library -->
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script> 
 ...
-    <script src="../lib/galleria/galleria-1.4.2.js"></script>
+    <!-- The Magnifier JavaScript library -->
+    <script src="lib/galleria/galleria-1.4.2.js"></script>
 ...
-    <script src="../src/js/viewers.js"></script>: 
+    <script src="src/js/viewers.js"></script>: 
 ...
 ```
 
@@ -143,8 +140,8 @@ Use following instruction to enable and initialize the magnifier:
 
 ```html
 ...
-    <!-- Path below is referenced from the viewer.html in the example folder -->
-    <link rel="stylesheet" href="../src/css/magnifier.css">
+    <!-- The file path will be similar to this assuming the HTML file is in root directory of this library -->
+    <link rel="stylesheet" href="src/css/magnifier.css">
 ...
 ```
 
