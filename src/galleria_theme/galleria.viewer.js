@@ -191,11 +191,11 @@
                 ).addClass("icon ion-android-open lightbox-icon");
                 
                 $(".galleria-images").after(lightboxImg);
-            }
+            } 
 
             this.$('info').empty();
 
-            if (options.zoomContainer) {
+            if (options.zoomContainer && !touch) {
                 _zoomWindow = $("<div>", {
                     class: "magnifier-preview",
                     id: 'zoom-container'
@@ -265,7 +265,7 @@
                 $('.magnifier-preview').empty();
 
                 // Only attach the magnifier if not on a mobile
-                if (options.enableZoom && !touch && options.zoomContainer && parseInt($(window).width(), 10) >= 768 && e.galleriaData.type != "Rotatable") {
+                if (options.enableZoom && !touch && options.zoomContainer && $(options.zoomContainer).is(":visible") && e.galleriaData.type != "Rotatable") {
                     var zoomWrapperId = options.zoomContainer;
                     if (zoomWrapperId !== undefined) {
                         var evt = new Event(),
@@ -378,16 +378,23 @@
 
             this.bind('image', function(e) {
                 // Attach Image Metadata
-                if (metadata.length > 0) {
+                if (options.showImageData && metadata.length > 0) {
                     imageTarget = $(e.imageTarget);
 
                     // Wait until the image is FULLY rendered, so the image-data.js knows where to add the image info
                     setTimeout(function() {
                         imageTarget.show(1, function() {
-                            imageTarget.imageData({
-                                hover: false,
-                                metadata: metadata
-                            });
+                            if (options.showImageData == 'hover') {
+                                imageTarget.imageData({
+                                    hover: true,
+                                    metadata: metadata
+                                });
+                            } else {
+                                imageTarget.imageData({
+                                    hover: false,
+                                    metadata: metadata
+                                });
+                            }
                         });
                     }, 0);
                 }
@@ -421,18 +428,35 @@
                     });
                 }
 
-                if (metadata.length > 0) {
-                    $(e.thumbTarget).imageData({
-                        metadata: metadata
-                    });
+                if (options.showImageData && metadata.length > 0) {
+                    if (options.showImageData == 'hover') {
+                        $(e.thumbTarget).imageData({
+                            hover: true,
+                            metadata: metadata
+                        });
+                    } else {
+                        $(e.thumbTarget).imageData({
+                            hover: false,
+                            metadata: metadata
+                        });
+                    }
                 }
             });
 
             this.bind('lightbox_image', function(e) {
-                $(e.imageTarget).imageData({
-                    hover: false,
-                    metadata: metadata
-                });
+                if (options.showImageData && metadata.length > 0) {
+                    if (options.showImageData == 'hover') {
+                        $(e.imageTarget).imageData({
+                            hover: true,
+                            metadata: metadata
+                        });
+                    } else {
+                        $(e.imageTarget).imageData({
+                            hover: false,
+                            metadata: metadata
+                        });
+                    }
+                }
 
                 $("#rotatablePrefetchContainer").remove();
 
@@ -471,10 +495,19 @@
             });
 
             this.bind("rescale", function(e) {
-                $("#main-image").imageData({
-                    hover: false,
-                    metadata: metadata
-                });
+                if (options.showImageData && metadata.length > 0) {
+                    if (options.showImageData == 'hover') {
+                        $("#main-image").imageData({
+                            hover: true,
+                            metadata: metadata
+                        });
+                    } else {
+                        $("#main-image").imageData({
+                            hover: false,
+                            metadata: metadata
+                        });
+                    }
+                }
             });
         }
     });

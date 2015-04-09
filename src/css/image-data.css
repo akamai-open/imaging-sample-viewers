@@ -27,8 +27,11 @@ div.image-data {
     z-index: 99999;
     pointer-events: none;
 }
-div.hover:hover .image-data {
-    display: block;
+.hover .image-data {
+    display: none !important;
+}
+.hover:hover .image-data {
+    display: block !important;
 }
 div.image-data span {
     padding: 5px;

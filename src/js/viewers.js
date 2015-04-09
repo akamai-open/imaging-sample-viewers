@@ -36,6 +36,7 @@
         this.options.dimensions = this.options.dimensions || {};
         this.options.imageWidth = this.options.imageWidth || 0;
         this.options.bigWidth = this.options.bigWidth || 0;
+        this.options.lastResizeTime = this.options.lastResizeTime || 0;
         this.render($(element).attr("class"));
     };
 
@@ -60,8 +61,7 @@
         try {
             var self = this;
 
-            this.setDefault()
-            this.options.viewerSelector = (this.$element.attr("id")) ? ("#" + this.$element.attr("id")) : ("." + this.$element.attr("class")).replace(' ', '.');
+            this.setDefault();
             var jsonUrl = "";
 
             if (this.options.dataSource) {
@@ -125,11 +125,13 @@
             smViewerHeight: '100%',
             thumbnailWidth: "50px",
             hoverFocus: false,
+            showImageData: false,
             zoomContainer: null,
             zoomWidth: "200px",
             zoomHeight: "200px",
             zoomLevel: 2,
-            enableZoom: true
+            enableZoom: true,
+            viewerSelector: (this.$element.attr("id")) ? ("#" + this.$element.attr("id")) : ("." + this.$element.attr("class")).replace(' ', '.')
         }
 
         this.options = $.extend(defaultOptions, this.options);
@@ -193,12 +195,17 @@
      */
     Akamai.ImViewer.prototype.onViewportResize = function(event) {
         var index = event.data.index;
-        var galleria = Galleria.get(index);
         var self = Akamai.ImViewers[index];
+        if (Date.now() - self.options.lastResizeTime < 50) {
+            return;
+        }
+
+        var galleria = Galleria.get(index);
         var galleries = [];
         var oldWidth = self.options.dimensions.width;
         self.updateViewerDimension();
         self.resizeViewer();
+        self.options.lastResizeTime = Date.now();
 
         var newImages = self.loadViewerData(event.data.jsonData, galleries);
         galleria.setOptions({

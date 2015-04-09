@@ -94,23 +94,23 @@ For example:
 ```
 
 ## Parameters
-| Parameter           | Description                                                                                                | Default | Required | 
-| ------------------- | ---------------------------------------------------------------------------------------------------------- | ------- | -------- | 
-| `baseUrl`           | Base URL of the domain hosting the images. Typically this is the host that Image Manager is enabled on.    | N/A     | Yes      | 
-| `lunaToken`         | 'API Token' assigned when enabling Image Manager in Luna Property Manager.                                 | N/A     | Yes      | 
-| `imageCollectionId` | The ID of the Image Collection defined in Image Manager.                                                   | N/A     | Yes      | 
-| `theme`             | The locatioa of the viewer theme file `galleria.viewer.js` in the directory `lib/galleria/themes/classic`. | N/A     | Yes      | 
-| `viewerWidth`       | Width of the viewer when the width of the browser window is larger than the threshold (768px).             | 100%    | No       | 
-| `viewerHeight`      | Height of the viewer when the width of the browser window is larger than the threshold (768px).            | 100%    | No       | 
-| `smViewerWidth`     | Width of the viewer when the width of the browser window is smaller than the threshold (768px).            | 100%    | No       | 
-| `smViewerHeight`    | Height of the viewer when the width of the browser window is smaller than the threshold (768px).           | 100%    | No       | 
-| `thumbnailWidth`    | Akamai query value for the thumbnail image width, used when requesting the thumbnail image from Akamai.    | 50px    | No       | 
-| `galleryContainer`  | CSS selector for the div element that contains the swatches.                                               | null    | No       | 
-| `rotationInverse`   | If true, the frames for the Rotatable images will be inversed.                                             | false   | No       | 
-| `hoverFocus`        | If ture, the viewer will display the image when mouse hover over its thumbnail.                            | false   | No       | 
-| `dummyImage`        | The dummy image to display if the viewer cannot fetch the image.                                           | N/A     | No       | 
+| Parameter           | Description                                                                                                                                 | Type               | Default | Required | 
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------- | -------- | 
+| `baseUrl`           | Base URL of the domain hosting the images. Typically this is the host that Image Manager is enabled on.                                     | String             | N/A     | Yes      | 
+| `lunaToken`         | 'API Token' assigned when enabling Image Manager in Luna Property Manager.                                                                  | String             | N/A     | Yes      | 
+| `imageCollectionId` | The ID of the Image Collection defined in Image Manager.                                                                                    | String             | N/A     | Yes      | 
+| `theme`             | The locatioa of the viewer theme file `galleria.viewer.js` in the directory `lib/galleria/themes/classic`.                                  | String             | N/A     | Yes      | 
+| `viewerWidth`       | Width of the viewer when the width of the browser window is larger than the threshold (768px).                                              | px or %            | 100%    | No       | 
+| `viewerHeight`      | Height of the viewer when the width of the browser window is larger than the threshold (768px).                                             | px or %            | 100%    | No       | 
+| `smViewerWidth`     | Width of the viewer when the width of the browser window is smaller than the threshold (768px).                                             | px or %            | 100%    | No       | 
+| `smViewerHeight`    | Height of the viewer when the width of the browser window is smaller than the threshold (768px).                                            | px or %            | 100%    | No       | 
+| `thumbnailWidth`    | Akamai query value for the thumbnail image width, used when requesting the thumbnail image from Akamai.                                     | px or %            | 50px    | No       | 
+| `galleryContainer`  | CSS selector for the div element that contains the swatches.                                                                                | String             | null    | No       | 
+| `rotationInverse`   | If true, the frames for the Rotatable images will be inversed.                                                                              | Boolean            | false   | No       | 
+| `hoverFocus`        | If ture, the viewer will display the image when mouse hover over its thumbnail.                                                             | Boolean            | false   | No       | 
+| `showImageData`     | If ture, the the image data will always be displayed, if "hover", is will only be visible when hovered over, if false, it is not displayed. | Boolean or "hover" | false   | No       | 
+| `dummyImage`        | The path to a dummy image to display if the viewer cannot fetch the image.                                                                  | String             | N/A     | No       | 
 
-* Unit of width and height can be either percent or px. 
 
 ## Magnifier
 
@@ -174,12 +174,11 @@ For example:
 ```
 
 ## Parameters
-| Parameter           | Description                                                                         | Default | Required | 
-| ------------------- | ----------------------------------------------------------------------------------- | ------- | -------- | 
-| `zoomContainer`     | CSS selector for the div element that contains the magnifier viewport.              | N/A     | Yes      | 
-| `zoomWidth`         | Width of the magnifier viewport.                                                    | 200px   | No       | 
-| `zoomHeight`        | Height of the magnifier viewport.                                                   | 200px   | No       | 
-| `zoomLevel`         | Ratio between the magnified and normal image. (2 means double the height and width) | 2       | No       | 
-| `enableZoom`        | If false, the magnifier will be disabled.                                           | true    | No       | 
+| Parameter           | Description                                                                         | Type    | Default | Required | 
+| ------------------- | ----------------------------------------------------------------------------------- | ------- | ------- | -------- | 
+| `zoomContainer`     | CSS selector for the div element that contains the magnifier viewport.              | String  | N/A     | Yes      | 
+| `zoomWidth`         | Width of the magnifier viewport.                                                    | px or % | 200px   | No       | 
+| `zoomHeight`        | Height of the magnifier viewport.                                                   | px or % | 200px   | No       | 
+| `zoomLevel`         | Ratio between the magnified and normal image. (2 means double the height and width) | Number  | 2       | No       | 
+| `enableZoom`        | If false, the magnifier will be disabled.                                           | Boolean | true    | No       | 
 
-* Unit of width and height can be either percent or px. 

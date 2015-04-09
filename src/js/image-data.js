@@ -162,7 +162,7 @@
 
         function hover(dataDiv) {
             if (options.hover == true) {
-                dataDiv.parent("div").addClass("hover");
+                dataDiv.parent().closest("div").addClass("hover");
             } else {
                 dataDiv.css("display", "block");
             }
