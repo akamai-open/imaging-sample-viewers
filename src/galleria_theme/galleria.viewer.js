@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Galleria theme file for ImViewer
+ * @requires jQuery
+ */
 (function($, Akamai) {
-
-    /*global window, jQuery, Galleria */
 
     Galleria.addTheme({
         name: 'viewer',
@@ -30,385 +32,240 @@
             metadata: [],
             fullscreenDoubleTap: true,
             // set this to false if you want to show the caption all the time:
-            _toggleInfo: false
+            _toggleInfo: true
 
         },
         init: function(options) {
 
-            Galleria.requires(1.4, 'This theme requires Galleria 1.4 or later');
+            Galleria.requires('1.4', 'This theme requires Galleria 1.4 or later');
 
             var touch = Galleria.TOUCH;
             var metadata = options.metadata;
-            var _zoomWindow = null;
-            var _currentSwatchImg = null;
 
-            var selectGallery = function(clickEvent) {
-                // TODO: get the current ImViewer instance index, hard coded to 0 as right now we only support one Galleria instance on the page. 
-                var galleriaIndex = 0;
-                var galleria = Galleria.get(galleriaIndex);
-                var selectedGalleryIndex = clickEvent.data.galleryIndex;
-                var selectedGalleryItems = options.galleries[selectedGalleryIndex].items;
-                var existingImageData = galleria._data;
-                var newImageData = []; 
-                var newGalleryLoaded = false;
-
-                var loadNewGallery = function(index, item) {
-                    if ($.isNumeric(item.galleryIndex) && item.galleryIndex != selectedGalleryIndex) {
-                        if (!newGalleryLoaded) {
-                            newImageData = newImageData.concat(selectedGalleryItems);
-                            newGalleryLoaded = true;
-                        }
+            /** ----- Helper functions ----- 
+             * Local functions used for setup or event binding.
+             */
+            /**
+             * Attach the image-data div to the given image target
+             */
+            var attachImageData = function(element) {
+                var target = $(element);
+                if (options.showImageData && metadata.length > 0) {
+                    if (options.showImageData == 'hover') {
+                        target.imageData({
+                            hover: true,
+                            metadata: metadata
+                        });
                     } else {
-                        newImageData.push(item);
-                    }
-                };
-                $.each(existingImageData, loadNewGallery);
-
-                options.show = Math.min(galleria.getIndex(), newImageData.length-1);;
-                options.dataSource = newImageData;
-                Akamai.ImViewer.restartGalleria(0, options, ".galleria");
-            };
-
-            // Click and drag for threesixty
-            var drag = function(mousedownEvent) {
-                var option = Galleria.get(0)._option;
-                var data = mousedownEvent.data.data;
-                var target = mousedownEvent.data.target;
-                
-                var origX = mousedownEvent.pageX;
-                var lightboxOpen = mousedownEvent.data.lightboxOpen;
-                var imageCount = data.images.length;
-                var unitLength = target.width / (imageCount - 1);
-                var displacementX = 0;
-                var deltaIndex = 0;
-                var documentElement = $(document.documentElement).addClass("rotatable-cursor");
-                
-                var rotate = function(mousemoveEvent) {
-                    displacementX = mousemoveEvent.pageX - origX;
-                    if (displacementX > 0) {
-                        deltaIndex = Math.floor(displacementX/unitLength);
-                    } else if (displacementX < 0) {
-                        deltaIndex = Math.ceil(displacementX/unitLength);
-                    }
-
-                    if(0 < deltaIndex) {
-                        data.index = (data.index + deltaIndex) % imageCount;
-                        data.image = data.images[data.index];
-                        if(lightboxOpen) {
-                            target.src = data.bigs[data.index];
-                        } else {
-                            target.src = data.images[data.index];
-                            data.big = data.bigs[data.index];
-                            $("#main-image-large").attr("src", data.big);
-                        }
-                        origX = mousemoveEvent.pageX;
-                    } else if (0 > deltaIndex) {
-                        // JavaScript Modulo bug, have to do this.
-                        data.index = (((data.index + deltaIndex) % imageCount) + imageCount) % imageCount;
-                        data.image = data.images[data.index];
-                        if(lightboxOpen) {
-                            target.src = data.bigs[data.index];
-                        } else {
-                            target.src = data.images[data.index];
-                            data.big = data.bigs[data.index];
-                            $("#main-image-large").attr("src", data.big);
-                        }
-                        origX = mousemoveEvent.pageX;
+                        target.imageData({
+                            hover: false,
+                            metadata: metadata
+                        });
                     }
                 }
-
-                documentElement.on("mousemove", rotate).on("mouseup", function() {
-                    documentElement.off("mousemove", rotate).removeClass("rotatable-cursor");
-                });
             };
 
-            var createGalleryColor = function(item) {
-                galleryColor = $("<div>", {
-                    style: "background-color:" + item.color + ";"
-                }).addClass("gallery-thumbnail not-selected");
+            /**
+             * Create a div element with the background color set to the specified color. 
+             * @return jQuery containing the created div element. 
+             */
+            var createGalleryThumbColor = function(color) {
+                var galleryColor = $(document.createElement("div"));
+                galleryColor.css("background-color", color);
                 return galleryColor;
             };
 
-            var createGalleryThumbnail = function(item) {
+            /**
+             * Create an img element with the src set to the url of given item. 
+             * @return jQuery containing the created img element. 
+             */
+            var createGalleryThumbImage = function(item) {
                 var thumbnailSrc = "";
                 if (item.type === "AkaImage") {
                     thumbnailSrc = Akamai.Util.parseAkaImagePath(options.baseUrl, item.imageId, options.akiQueryParams.thumb);
                 } else {
                     thumbnailSrc = item.imageSrc;
                 }
-                galleryThumbnail = $("<img>", {
-                    src: thumbnailSrc
-                }).addClass("gallery-thumbnail not-selected");
+                var galleryThumbnail = $(document.createElement("img"));
+                galleryThumbnail.attr('src', thumbnailSrc);
                 return galleryThumbnail;
             };
 
-            // disable selection, so elements won't get selected when user drags the threesixty
-            $(".galleria, .galleria *").on("selectstart", function(e) {
-                e.preventDefault();
-            }).on("dragstart", function(e) {
-                e.preventDefault();
-            }).attr("unselectable", "on");
-
-            // show loader & counter with opacity
-            this.$('loader,counter').show().css('opacity', 0.6);
-
-            var addImageSlider = function(imageEvent, touch) {
-                var imageSlider = document.createElement("INPUT");
-                $(imageSlider).attr({
-                    id: "image-slider",
-                    type: "range",
-                    max: imageEvent.galleriaData.images.length-1,
-                    min: 0,
-                    value: 0,
-                    style: "top: " + $(".galleria-stage").height() + "px"
-                }).on("input", function(inputEvent) {
-                    imageEvent.imageTarget.src = imageEvent.galleriaData.images[inputEvent.currentTarget.value];
-                    imageEvent.galleriaData.big = imageEvent.galleriaData.bigs[inputEvent.currentTarget.value];
-                }).addClass("image-slider");
-                
-                $(".galleria-stage").after(imageSlider);
+            /**
+             * Create a gallery(swatch) icon/thumbnail for the gallery(swatch)
+             * @return jQuery containing the created icon/thumbnail. 
+             */
+            var createGalleryThumbnail = function(galleryItem) {
+                if (galleryItem.type === "AkaImage" || galleryItem.type === "Image") {
+                    return createGalleryThumbImage(galleryItem);
+                } else if (galleryItem.type === "Color") {
+                    return createGalleryThumbColor(galleryItem.color);
+                }     
             };
 
+            /**
+             * Set the opacity of current thumbnail to 1 and opacity of other thumbnails to 0.6. 
+             */
             var activate = function(e) {
                 $(e.thumbTarget).css('opacity', 1).parent().siblings().children().css('opacity', 0.6);
             };
 
-            // some stuff for non-touch browsers
-            if (!touch) {
-                this.addIdleState(this.get('counter'), {
-                    opacity: 0
+            /**
+             * Append a range input element (slider) to the stage of current Galleria instance. 
+             * The slider is used to rotate the Rotatable (306) images on touch device. 
+             */
+            var addImageSlider = function(imageEvent, touch) {
+                var imageSlider = $(document.createElement("input"));
+                imageSlider.attr({
+                    id: "im-viewer-image-slider",
+                    type: "range",
+                    max: imageEvent.galleriaData.images.length-1,
+                    min: 0,
+                    value: 0,
+                    style: "top: " + this.$("stage").height() + "px"
+                }).on("input", function(inputEvent) {
+                    imageEvent.imageTarget.src = imageEvent.galleriaData.images[inputEvent.currentTarget.value];
+                    imageEvent.galleriaData.big = imageEvent.galleriaData.bigs[inputEvent.currentTarget.value];
+                    
+                    // Update image data
+                    attachImageData(imageEvent.imageTarget);
+                }).addClass("im-viewer-image-slider");
+
+                this.$("stage").after(imageSlider);
+            };
+
+            /**
+             * Create a 0px by 0px img element for each frame of Rotatable (360) image, and put the img element into a container div element.
+             * Insert the div element after the active Rotatable (360) image, so all frames of this image will be fetched. 
+             */
+            var prefetchRotatableFrames = function(frames) {
+                var rotatablePrefetchContainer = document.createElement("div");
+                $(rotatablePrefetchContainer).attr({
+                    id: "rotatablePrefetchContainer",
+                    class: "im-viewer-rotatable-prefetch"
                 });
 
-                // light box button
-                var lightboxImg = document.createElement("I");
-                $(lightboxImg).attr({
-                    id: "lightboxImg",
-                    style: "top: " + $(".galleria-stage").height()
-                }).click(
-                    this.proxy(function() {
-                        this.openLightbox();
-                    })
-                ).addClass("icon ion-android-open lightbox-icon");
-                
-                $(".galleria-images").after(lightboxImg);
-            } 
-
-            this.$('info').empty();
-
-            if (options.zoomContainer && !touch) {
-                _zoomWindow = $("<div>", {
-                    class: "magnifier-preview",
-                    id: 'zoom-container'
-                });
-                _zoomWindow.css('width', options.zoomWidth);
-                _zoomWindow.css('height', options.zoomHeight);
-                $(options.zoomContainer).append(_zoomWindow);
-            }
-
-            // Setup the Gallery container and the galleries. 
-            if (options.galleries) {
-                var fragment = $(document.createDocumentFragment());
-                var galleryContainer = null;
-                if (options.galleryContainer) {
-                    galleryContainer = $(options.galleryContainer);
-                } else {
-                    galleryContainer = $("<div>", {
-                        id: "galleries"
+                $.each(frames, function (index, frame) {
+                    var rotatablePrefetchFrame = document.createElement("img");
+                    $(rotatablePrefetchFrame).attr({
+                        id: "rotatablePrefetchFrame" + index,
+                        src: frame,
+                        class: "im-viewer-rotatable-prefetch"
                     });
-                    galleryContainer.insertAfter(this.$("container"));
-                }
-                galleryContainer.addClass("galleries-container");
+                    $(rotatablePrefetchContainer).append(rotatablePrefetchFrame);
+                });
 
-                $.each(options.galleries, function(index, currentGallery) {
-                    var galleryThumbnail = null;
-                    if (currentGallery.thumbnail) {
-                        if (currentGallery.thumbnail.type === "AkaImage" || currentGallery.thumbnail.type === "Image") {
-                            galleryThumbnail = createGalleryThumbnail(currentGallery.thumbnail);
-                        } else if (currentGallery.thumbnail.type === "Color") {
-                            galleryThumbnail =createGalleryColor(currentGallery.thumbnail);
+                this.$("images").after(rotatablePrefetchContainer);
+                rotatablePrefetchContainer;
+            };
+
+            /** ----- Event handlers ----- */
+            /**
+             * 'click' event handler for the gallery icon/thumbnail
+             * Load the gallery whose icon/thumbnail was clicked by user. 
+             */
+            var selectGallery = function(clickEvent) {
+                var galleriaIndex = options.index;
+                var galleria = Galleria.get(galleriaIndex);
+                var selectedGalleryIndex = clickEvent.data.galleryIndex;
+                var selectedGalleryItems = options.galleries[selectedGalleryIndex].items;
+                var newImages = []; 
+                var newGalleryLoaded = false;
+
+                var loadNewGallery = function(index, item) {
+                    if ($.isNumeric(item.galleryIndex) && item.galleryIndex != selectedGalleryIndex) {
+                        if (!newGalleryLoaded) {
+                            newImages = newImages.concat(selectedGalleryItems);
+                            newGalleryLoaded = true;
                         }
                     } else {
-                        if (currentGallery.items[0].type === "AkaImage" || currentGallery.items[0].type === "Image") {
-                            galleryThumbnail = createGalleryThumbnail(currentGallery.items[0]);
-                        } else if (currentGallery.items[0].type === "Color") {
-                            galleryThumbnail = createGalleryColor(currentGallery.items[0]);
-                        } 
-                        // TODO: Add support for Rotatable and other stuff
+                        newImages.push(item);
+                    }
+                };
+                $.each(galleria._data, loadNewGallery);
+
+                options.currentGalleryIndex = selectedGalleryIndex;
+                options.show = Math.min(galleria.getIndex(), newImages.length-1);;
+                options.dataSource = newImages;
+                Akamai.ImViewer.restartGalleria(options);
+            };
+
+            /**
+             * 'mousedown' event handler for the Rotatable(360) image. 
+             * Regesters the document element's 'mousemove' and 'mouseup' event to track mouse movement while the mouse button is held down. 
+             */
+            var drag = function(mousedownEvent) {
+                var data = mousedownEvent.data.data;
+                var target = mousedownEvent.data.target;
+                
+                var origX = mousedownEvent.pageX;
+                var imageCount = data.images.length;
+                var unitLength = target.width / (imageCount - 1);
+                
+                /**
+                 * 'mousemove' event handler. 
+                 * Track the movement of the mouse and "rotate" the image accordingly. 
+                 */
+                var rotate = function(mousemoveEvent) {
+                    var displacementX = mousemoveEvent.pageX - origX;
+                    var deltaIndex = 0; 
+                    if (displacementX > 0) {
+                        deltaIndex = Math.floor(displacementX/unitLength);
+                    } else if (displacementX < 0) {
+                        deltaIndex = Math.ceil(displacementX/unitLength);
+                    }
+
+                    if (0 != deltaIndex) {
+                        // JavaScript Modulo bug, have to do this.
+                        data.index = ((data.index + deltaIndex) % imageCount + imageCount) % imageCount;
+                        data.image = data.images[data.index];
+                        if(mousedownEvent.data.lightboxOpen) {
+                            target.src = data.bigs[data.index];
+                        } else {
+                            target.src = data.images[data.index];
+                            data.big = data.bigs[data.index];
+                            $("#main-image-large").attr("src", data.big);
+                        }
+                        origX = mousemoveEvent.pageX;
+
+                        attachImageData(target);
                     }
                     
-                    if (galleryThumbnail) {
-                        galleryThumbnail.on("click", { galleryIndex: index }, selectGallery);
-                        galleryThumbnail.addClass("gallery-thumbnail");
-                        fragment.append(galleryThumbnail);
-                    } else {
-                        console.log("Thumbnail type of Gallery is not supported. ");
-                    }
+                };
+
+                $(document.documentElement).addClass("im-viewer-rotatable-cursor").on("mousemove", rotate).on("mouseup", function() {
+                    $(document.documentElement).off("mousemove", rotate).removeClass("im-viewer-rotatable-cursor");
                 });
+            };
 
-                galleryContainer.append(fragment);
-            }
-
-            // bind some stuff
-            this.bind('loadstart', function(e) {
-                if (!e.cached) {
-                    this.$('loader').show().fadeTo(100, 0.4);
-                }
-                window.setTimeout(function() {
-                    activate(e);
-                }, touch ? 300 : 0);
-            });
-
-            this.bind('loadfinish', function(e) {
-                this.$('loader').fadeOut(100);
-
-                $('.magnifier-thumb-wrapper, .magnifier-lens, #image-slider, #rotatableImg, #rotatablePrefetchContainer, .galleria-stage .galleria-image .image-data').remove();
-                $('.magnifier-preview').empty();
-
-                // Only attach the magnifier if not on a mobile
-                if (options.enableZoom && !touch && options.zoomContainer && $(options.zoomContainer).is(":visible") && e.galleriaData.type != "Rotatable") {
-                    var zoomWrapperId = options.zoomContainer;
-                    if (zoomWrapperId !== undefined) {
-                        var evt = new Event(),
-                            m = new Magnifier(evt);
-                        $(e.imageTarget).attr('id', 'main-image');
-                        var zoomWrapper = document.createElement('a');
-                        var fullImage = this.getData(e.index).big;
-                        m.attach({
-                            thumb: '#main-image',
-                            large: fullImage,
-                            largeWrapper: _zoomWindow.attr('id'),
-                            zoom: options.zoomLevel,
-                            onthumbenter: function (eventData) {
-                                $('.magnifier-lens').removeAttr('style').addClass('zoom-lens');
-                            },
-                            onthumbmove: function(eventData) {
-                                if (!$('.magnifier-lens').css('left')) {
-                                    return;
-                                }
-
-                                $('.magnifier-lens').removeAttr('style').addClass('zoom-lens');
-
-                                var zoom = options.zoomLevel;
-                                var imageHeight = $(e.imageTarget).height();
-                                var imageWidth = $(e.imageTarget).width();
-                                var largeHeight = imageHeight * zoom;
-                                var largeWidth = imageWidth * zoom;
-
-                                $(eventData.large).height(largeHeight).width(largeWidth);
-
-                                var zoomHeight = $(options.zoomContainer).children(":first").height();;
-                                var zoomWidth = $(options.zoomContainer).children(":first").width();
-
-                                var lensHeight = Math.round(zoomHeight / zoom);
-                                var lensWidth = Math.round(zoomWidth / zoom);
-
-                                $(eventData.lens).height(lensHeight).width(lensWidth);
-
-                                var wapper = jQuery('.magnifier-thumb-wrapper').children(":first");
-
-                                var xOffset = wapper.css("left").replace("px", "");
-                                var yOffset = wapper.css("top").replace("px", "");
-
-                                var left = eventData.x - xOffset;
-                                var top = eventData.y - yOffset;
-
-                                if (left < lensWidth / 2) {
-                                    left = lensWidth / 2;
-                                } else if (left + lensWidth / 2 - imageWidth >= 0) {
-                                    left = imageWidth - (lensWidth / 2 + 2);
-                                }
-                                if (top < lensHeight / 2) {
-                                    top = lensHeight / 2;
-                                } else if (top + lensHeight / 2 - imageHeight >= 0) {
-                                    top = imageHeight - (lensHeight / 2 + 2);
-                                }
-
-                                var lensLeft = left + Number(xOffset) - lensWidth / 2;
-                                var lensTop = top + Number(yOffset) - lensHeight / 2;
-
-                                lensLeft = (lensLeft < 0) ? 0 : lensLeft;
-                                lensTop = (lensTop < 0) ? 0 : lensTop;
-
-                                $('.magnifier-lens').css({
-                                    'left': lensLeft,
-                                    'top': lensTop
-                                });
-
-                                var largeLeft = (lensLeft == 0) ? 0 : 0 - Math.round( (left - lensWidth / 2) * zoom);
-                                var largeTop = (lensTop == 0) ? 0 : 0 - Math.round( (top - lensHeight / 2) * zoom);
-
-                                $(eventData.large).css("left", largeLeft + "px").css("top", largeTop + "px");
-                            }
-                        });
-                        $(zoomWrapper).addClass('magnifier-thumb-wrapper');
-                        $(e.imageTarget).wrap(zoomWrapper);
-                    }
-                }
-
-                if (e.galleriaData.type === "Rotatable") {
-                    // prefetch all frames
-                    var rotatablePrefetchContainer = document.createElement("DIV");
-                    $(rotatablePrefetchContainer).attr({
-                        id: "rotatablePrefetchContainer",
-                        class: "rotatable-prefetch"
-                    });
-
-                    $.each(e.galleriaData.images, function (index, image) {
-                        var rotatablePrefetchImage = document.createElement("IMG");
-                        $(rotatablePrefetchImage).attr({
-                            id: "rotatablePrefetchImage" + index,
-                            src: image,
-                            class: "rotatable-prefetch"
-                        });
-                        $(rotatablePrefetchContainer).append(rotatablePrefetchImage);
-                    });
-
-                    $(".galleria-images").after(rotatablePrefetchContainer);
-
-                    if (touch) {
-                        // The image will always start at frame 0, so reset the lightbox image accordingly. 
-                        e.galleriaData.big = e.galleriaData.bigs[0];
-                        addImageSlider(e);
-                    } else {
-                        $(e.imageTarget).addClass('rotatable-cursor')
-                        .on("mousedown", {data: e.galleriaData, target: e.imageTarget, lightboxOpen: false}, drag);
-                    }
-                }
-            });
-
-            this.bind('image', function(e) {
-                // Attach Image Metadata
-                if (options.showImageData && metadata.length > 0) {
-                    imageTarget = $(e.imageTarget);
-
-                    // Wait until the image is FULLY rendered, so the image-data.js knows where to add the image info
-                    setTimeout(function() {
-                        imageTarget.show(1, function() {
-                            if (options.showImageData == 'hover') {
-                                imageTarget.imageData({
-                                    hover: true,
-                                    metadata: metadata
-                                });
-                            } else {
-                                imageTarget.imageData({
-                                    hover: false,
-                                    metadata: metadata
-                                });
-                            }
-                        });
-                    }, 0);
-                }
-            });
-
+            /** ----- Galleria Event binding ----- 
+             * These are events (defined by Galleria) and the handler for each event. 
+             */
+            /**
+             * Gets triggered every time Galleria finishes rendering a thumbnail. 
+             * @listens Galliera 'thumbnail' event
+             */
             this.bind('thumbnail', function(e) {
+                var thumbTarget = $(e.thumbTarget);
+
+                // Add 360 indication if image is 360
+                if (e.galleriaData.type == "Rotatable") {
+                    var rotatableImg = document.createElement("canvas");
+                    $(rotatableImg).attr({
+                        id: "rotatableImg"
+                    }).addClass("im-viewer-rotatable-icon");
+                    
+                    thumbTarget.after(rotatableImg);
+                }
+
                 if (!touch) {
                     // fade thumbnails
-                    $(e.thumbTarget).css('opacity', 0.6).parent().hover(function() {
+                    thumbTarget.css('opacity', 0.6).parent().hover(function() {
                         $(this).not('.active').children("img").stop().fadeTo(100, 1);
                         if (options.hoverFocus) {
-                            var gallery = Galleria.get(0);
-                            if (e.index != gallery.getIndex()) {
-                                gallery.show(e.index);
+                            var galleria = Galleria.get(options.index);
+                            if (e.index != galleria.getIndex()) {
+                                galleria.show(e.index);
                             } else {
                                 if (($(this).hasClass('active')) && ((Math.round($(this).children('img').css('opacity') * 10) / 10) == 0.6)) {
                                     $(this).children('img').stop().fadeTo(100, 1);
@@ -420,73 +277,85 @@
                     });
 
                     if (e.index === this.getIndex()) {
-                        $(e.thumbTarget).css('opacity', 1);
+                        thumbTarget.css('opacity', 1);
                     }
                 } else {
-                    $(e.thumbTarget).css('opacity', this.getIndex() ? 1 : 0.6).bind('click:fast', function() {
+                    thumbTarget.css('opacity', this.getIndex() ? 1 : 0.6).bind('click:fast', function() {
                         $(this).css('opacity', 1).parent().siblings().children().css('opacity', 0.6);
                     });
                 }
 
-                if (options.showImageData && metadata.length > 0) {
-                    if (options.showImageData == 'hover') {
-                        $(e.thumbTarget).imageData({
-                            hover: true,
-                            metadata: metadata
-                        });
+                attachImageData(e.thumbTarget);
+            });
+
+            /**
+             * Gets triggered every time Galleria starts to loading a image. 
+             * @listens Galliera 'loadstart' event
+             */
+            this.bind('loadstart', function(e) {
+                if (!e.cached) {
+                    this.$('loader').show().fadeTo(100, 0.4);
+                }
+                setTimeout(function() {
+                    activate(e);
+                }, touch ? 300 : 0);
+            });
+
+            /**
+             * Gets triggered every time Galleria finishes loading a image. 
+             * @listens Galliera 'loadfinish' event
+             */
+            this.bind('loadfinish', function(e) {
+                this.$('loader').fadeOut(100);
+
+                this.$('container').find('#magnifier-zoom-wrapper, #im-viewer-image-slider, #rotatablePrefetchContainer, .galleria-stage .im-viewer-image-data').remove();
+                $(options.zoomContainer).empty();
+
+                if (options.enableZoom && !touch && e.galleriaData.type != "Rotatable") {
+                    var largeImageSrc = this.getData(e.index).big;
+                    Akamai.Magnifier.attach(e.imageTarget, largeImageSrc, options);
+                }
+
+                if (e.galleriaData.type === "Rotatable") {
+                    prefetchRotatableFrames.call(this, e.galleriaData.images);
+
+                    if (touch) {
+                        // The image will always start at frame 0, so reset the lightbox image accordingly. 
+                        e.galleriaData.big = e.galleriaData.bigs[0];
+                        addImageSlider.call(this, e);
                     } else {
-                        $(e.thumbTarget).imageData({
-                            hover: false,
-                            metadata: metadata
-                        });
+                        $(e.imageTarget).addClass('im-viewer-rotatable-cursor')
+                        .on("mousedown", {data: e.galleriaData, target: e.imageTarget, lightboxOpen: false}, drag);
                     }
                 }
             });
+    
+            /**
+             * Gets triggered every time Galleria finishes rendering an image. 
+             * @listens Galliera 'image' event
+             */
+            this.bind('image', function(e) {
+                attachImageData(e.imageTarget);
+            });
 
+            /**
+             * Gets triggered every time Galleria finishes rendering a image in lightbox. 
+             * @listens Galliera 'lightbox_image' event
+             */
             this.bind('lightbox_image', function(e) {
-                if (options.showImageData && metadata.length > 0) {
-                    if (options.showImageData == 'hover') {
-                        $(e.imageTarget).imageData({
-                            hover: true,
-                            metadata: metadata
-                        });
-                    } else {
-                        $(e.imageTarget).imageData({
-                            hover: false,
-                            metadata: metadata
-                        });
-                    }
-                }
-
+                attachImageData(e.imageTarget);
+                
                 $("#rotatablePrefetchContainer").remove();
 
                 var data = this.getData(this._lightbox.active);
 
                 if (data.type === "Rotatable") {
-
-                    // prefetch all frames
-                    var rotatablePrefetchContainer = document.createElement("DIV");
-                    $(rotatablePrefetchContainer).attr({
-                        id: "rotatablePrefetchContainer",
-                        class: "rotatable-prefetch"
-                    });
-
-                    $.each(data.bigs, function (index, bigImage) {
-                        var rotatablePrefetchImage = document.createElement("IMG");
-                        $(rotatablePrefetchImage).attr({
-                            id: "rotatablePrefetchImage" + index,
-                            src: bigImage,
-                            class: "rotatable-prefetch"
-                        });
-                        $(rotatablePrefetchContainer).append(rotatablePrefetchImage);
-                    });
-
-                    $(".galleria-images").after(rotatablePrefetchContainer);
-
+                    $(e.imageTarget).addClass("im-viewer-rotatable-cursor");
+                    prefetchRotatableFrames.call(this, data.bigs);
                     $('div.galleria-lightbox-image img').on("mousedown", {data: data, target: e.imageTarget, lightboxOpen: true}, drag);
                 }
 
-                $(".galleria-lightbox-box.iframe, .galleria-lightbox-box.iframe *").on("selectstart", function(e) {
+                $(".galleria-lightbox-box.iframe, .galleria-lightbox-box.iframe").on("selectstart", function(e) {
                     e.preventDefault();
                 }).on("dragstart", function(e) {
                     e.preventDefault();
@@ -494,21 +363,93 @@
                 
             });
 
+            /**
+             * Gets triggered every time Galleria resizes. 
+             * @listens Galliera 'rescale' event
+             */
             this.bind("rescale", function(e) {
-                if (options.showImageData && metadata.length > 0) {
-                    if (options.showImageData == 'hover') {
-                        $("#main-image").imageData({
-                            hover: true,
-                            metadata: metadata
-                        });
-                    } else {
-                        $("#main-image").imageData({
-                            hover: false,
-                            metadata: metadata
-                        });
-                    }
-                }
+                attachImageData("#main-image");
             });
+
+            /** ----- SETUP ----- 
+             * Starting form here till the end of file, theses codes will only run once when Galleria initializes.  
+             */
+            // Empty the Galleria info div
+            this.$('info').empty();
+
+            // Set up the Magnifier viewport if Magnifier is enable with mode 'outside'
+            if (!touch && options.zoomContainer && options.zoomMode == 'outside') {
+                $(options.zoomContainer).css({
+                    'width': options.zoomWidth,
+                    'height': options.zoomHeight,
+                    'display': 'block',
+                    'overflow': 'hidden'
+                }).addClass("im-viewer-zoom-container");
+            }
+
+            // show loader & counter with opacity
+            this.$('loader,counter').show().css('opacity', 0.6);
+
+            // Setup the gallery container and the gallery(swatch) icon/thumbnail if there is any gallery(swatch) in the ordered image collection. 
+            if (options.galleries) {
+                var galleryContainer = $(options.galleryContainer);
+                if (galleryContainer.length > 0) {
+                    var fragment = $(document.createDocumentFragment());
+                    galleryContainer.addClass("im-viewer-galleries-container");
+
+                    $.each(options.galleries, function(index, currentGallery) {
+                        var galleryThumbnail = null;
+                        if (currentGallery.thumbnail) {
+                            galleryThumbnail = createGalleryThumbnail(currentGallery.thumbnail);
+                        } else {
+                            galleryThumbnail = createGalleryThumbnail(currentGallery.items[0]);
+                        }
+                        
+                        if (galleryThumbnail) {
+                            galleryThumbnail.on("click", { galleryIndex: index }, selectGallery);
+                            galleryThumbnail.addClass("im-viewer-gallery-thumbnail");
+
+                            if (currentGallery.galleryIndex == options.currentGalleryIndex) {
+                                galleryThumbnail.addClass("im-viewer-gallery-selected");
+                            }
+                            fragment.append(galleryThumbnail);
+                        } else {
+                            console.log("Thumbnail type of Gallery is not supported. ");
+                        }
+                    });
+
+                    galleryContainer.append(fragment);
+                } else {
+                    console.log("The galleryContainer specified '" + options.galleryContainer + "' cannot be found. ");
+                }
+            }
+
+             // Disable selection, so elements won't get selected when user drags the threesixty
+            this.$("container").find('*').on("selectstart", function(e) {
+                e.preventDefault();
+            }).on("dragstart", function(e) {
+                e.preventDefault();
+            }).attr("unselectable", "on");
+
+            // some stuff for non-touch browsers
+            if (!touch) {
+                this.addIdleState(this.get('counter'), {
+                    opacity: 0
+                });
+
+                // light box button
+                var lightboxImg = $(document.createElement("canvas"));
+                lightboxImg.attr({
+                    id: "lightboxImg",
+                    style: "top: " + this.$("stage").height() + "px"
+                }).click(
+                    this.proxy(function() {
+                        this.openLightbox();
+                    })
+                ).addClass("im-viewer-lightbox-icon");
+
+                this.$("images").after(lightboxImg);
+            } 
         }
     });
 

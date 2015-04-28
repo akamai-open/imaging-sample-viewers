@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-// Depends on jQuery and Galleria
-
+/**
+ * @requires jQuery and Galleria
+ */
 (function($, Akamai) {
 
 
@@ -28,16 +29,20 @@
      * Construct and render the ImViewer
      * @constructor
      */
-    Akamai.ImViewer = function(element, options, index) {
-        Akamai.ImViewers.push(this);
-        this.index = index;
-        this.$element = $(element);
+    Akamai.ImViewer = function(element, options) {
+        this.element = $(element);
         this.options = $.extend(true, {}, options);
+
+        Akamai.ImViewers.push(this);
+        this.options.index = Akamai.ImViewers.length - 1;
+        
+        this.options.viewerSelector = (this.element.attr("id")) ? ("#" + this.element.attr("id")) : ("." + this.element.attr("class")).replace(' ', '.');
+        this.options.currentGalleryIndex = this.options.currentGalleryIndex || 0;
         this.options.dimensions = this.options.dimensions || {};
         this.options.imageWidth = this.options.imageWidth || 0;
         this.options.bigWidth = this.options.bigWidth || 0;
         this.options.lastResizeTime = this.options.lastResizeTime || 0;
-        this.render($(element).attr("class"));
+        this.render(this.element);
     };
 
     /** 
@@ -46,12 +51,19 @@
      * @memberof Akamai.ImViewer
      * @static
      */
-    Akamai.ImViewer.restartGalleria = function(index, options, selector) {
-        Galleria.get(index).destroy();
-        Akamai.ImViewers.splice(index, 1);
-        $("#galleries").empty();
-        $("#zoom-container").remove();
-        $(selector).viewer(options);
+    Akamai.ImViewer.restartGalleria = function(options) {
+        Galleria.get(options.index).destroy();
+        Akamai.ImViewers.splice(options.index, 1);
+
+        // re-index the ImViewer and Galleria instances
+        for (var i = 0; i < Akamai.ImViewers.length; i++) {
+            Akamai.ImViewers[i].options.index = i;
+            Galleria.get(i)._options.index = i;
+        }
+
+        $(options.galleryContainer).empty();
+        $(options.zoomContainer).empty();
+        $(options.viewerSelector).viewer(options);
     };
 
     /** 
@@ -85,9 +97,12 @@
                 error: function() {
                     var comingSoon = {};
                     if (self.options.dummyImage) {
-                        comingSoon = $('<img>').attr('src', self.options.dummyImage).attr('class', 'img-responsive').css('width', '100%');
+                        comingSoon = $(document.createElement("img")).attr({
+                            'src': self.options.dummyImage,
+                            'class': 'img-responsive'
+                        }).css('width', '100%');
                     } else {
-                        comingSoon = $('<p>').html('Image Comming Soon.').css('width', '100%');
+                        comingSoon = $(document.createElement("p")).html('Image Comming Soon.').css('width', '100%');
                     }
                     $(self.options.viewerSelector).append(comingSoon);
                     console.error("Error retrieving the JSON file.");
@@ -104,8 +119,8 @@
      */
     Akamai.ImViewer.prototype.setDefault = function() {
         // These are mandatory and must be set by the user
-        if (!this.options.theme) {
-            throw "A theme is required to initialize viewer. ";
+        if (!this.options.galleriaTheme) {
+            throw "A galleriaTheme is required to initialize viewer. ";
         }
         if (!this.options.baseUrl) {
             throw "A base URL is required to initialize viewer. ";
@@ -119,6 +134,8 @@
 
         var defaultOptions = {
             rotationInverse: false,
+            galleryContainer: null,
+            windowWidthThreshold: '600px',
             viewerWidth: '100%',
             viewerHeight: '100%',
             smViewerWidth: '100%',
@@ -130,8 +147,7 @@
             zoomWidth: "200px",
             zoomHeight: "200px",
             zoomLevel: 2,
-            enableZoom: true,
-            viewerSelector: (this.$element.attr("id")) ? ("#" + this.$element.attr("id")) : ("." + this.$element.attr("class")).replace(' ', '.')
+            enableZoom: true
         }
 
         this.options = $.extend(defaultOptions, this.options);
@@ -148,7 +164,7 @@
         // attach a listener on the browser to detect when it has been resized
         $(window).on('resize', null, {
             jsonData: jsonData,
-            index: this.index
+            index: this.options.index
         }, this.onViewportResize);
 
         this.resizeViewer(this.options.viewerSelector, this.options.viewerDimension);
@@ -164,7 +180,7 @@
     Akamai.ImViewer.prototype.updateViewerDimension = function () {
         var viewportWidth = parseInt($(window).width(), 10);
         var viewportHeight = parseInt($(window).height(), 10);
-        if (viewportWidth < 768) {
+        if (viewportWidth < this.options.windowWidthThreshold.replace('px','')) {
             this.options.dimensions.width = Akamai.Util.convertToPx(this.options.smViewerWidth, viewportWidth);
             this.options.dimensions.height = Akamai.Util.convertToPx(this.options.smViewerHeight, viewportHeight);
         } else {
@@ -183,7 +199,7 @@
         $(this.options.viewerSelector).css('width', this.options.dimensions.width);
         $(this.options.viewerSelector).css('height', this.options.dimensions.height);
 
-        if (zoomContainer && parseInt(viewportWidth, 10) < 768) {
+        if (zoomContainer && parseInt(viewportWidth, 10) < this.options.windowWidthThreshold.replace('px','')) {
             $(zoomContainer).hide(0);
         } else {
             $(zoomContainer).show(0);
@@ -218,7 +234,7 @@
      * Start the specified galleria with given options and datas.
      */
     Akamai.ImViewer.prototype.startGalleria = function (imageData, galleries) {
-        Galleria.loadTheme(this.options.theme);
+        Galleria.loadTheme(this.options.galleriaTheme);
 
         $.extend(true, this.options, {
             dataSource: imageData,
@@ -233,10 +249,8 @@
             metadata: ["dimensions", "size", "type"]
         });
 
-        Galleria.configure(this.options);
-
         if (this.options.viewerSelector) {
-            Galleria.run(this.options.viewerSelector);
+            Galleria.run(this.options.viewerSelector, this.options);
         } else {
             console.error("Viewer needs a selector to initialize itself in");
         }
@@ -265,7 +279,7 @@
                         currentItem.galleryIndex = galleryIndex;
                         var thisGallery = Akamai.parseToImageData(currentItem, argObject);
                         galleries.push(thisGallery);
-                        if (galleryIndex === 0) {
+                        if (currentItem.galleryIndex == this.options.currentGalleryIndex) {
                             imageData = imageData.concat(thisGallery.items);
                         }
                         galleryIndex++;
@@ -343,14 +357,12 @@
      * Calls the constructor for ImViewer for each of the selected HTML element. 
      */
     $.fn.viewer = function(options) {
-        return this.each(function(index, _) {
-            var $this = $(this);
-            var data = $this.data('productViewer');
-            
-            if (!data) {
-                $.data($this, 'productViewer', new Akamai.ImViewer(this, options, index));
-            }
-        });
+        var $this = $(this);
+        var data = $this.data('imViewer');
+        
+        if (!data) {
+            $.data($this, 'imViewer', new Akamai.ImViewer(this, options));
+        }
     };
 
 })(jQuery, window.Akamai = window.Akamai || {});

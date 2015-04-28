@@ -14,44 +14,71 @@
  * limitations under the License.
  */
 
-.zoom-lens {
+.im-viewer-zoom-lens {
     background-image: none;
     background-color: #ffffff;
     opacity: 0.4;
+    z-index: 300;
+    pointer-events: none;
+    position: absolute;
 }
-.image-slider {
+.im-viewer-zoom-image-overlay {
+    z-index: 300;
+}
+.im-viewer-zoom-container {
+    
+}
+.im-viewer-image-slider {
     position: absolute;
     width: 50%;
     left: 25%;
 }
-.lightbox-icon {
+.im-viewer-lightbox-icon {
+    background: url('../../lib/ionicons/android-open.svg');
+    background-size: 100% 100%;
     position: absolute;
     right: 0%;
-    font-size: 20px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     z-index: 20;
 }
-.rotatable-cursor {
+.im-viewer-rotatable-cursor {
     cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAATlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQEBAQEBAQEBAQDAwMDAwMDAwMDAwMCAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMeclPOAAAAGXRSTlMAAQIDBAkKC46PkJGpsrO05+jp+Pn7/P3+VKa4ewAAAQ5JREFUeNrtVkkOwzAIxNmafU8d/v/R4lbN2miqcqs8Ui4MgxwDBvLw8LiGMcAK5BFRZK6sGAHRLRHBQf+yBlgfEhV9n4tkrzd53xeOxvqKBSlFW3NEKQsqcYD6mgc7cReT2R4g7niyA9fiAvUjz5bbcwA7C+UiYD0PnB1/IRPjEgHo5atOl0gVj0sEqK9PCQt2ZIj1IaTVDpjGLpjETpjCblgPHEGKQKphkeBiW8t04ua7dm142pa7oeTZKHcul0OBB6cU59m+O9ZQ/GMA17H6X9Bfoj6N+kLSl7K+mRz5Zy8OflS1z7p6sOhHGx6uLRiu2vGOFwxzukS8YKwJSz6uOM4aaJcs7Zrn4eFxiQfGSjBSJZcWMwAAAABJRU5ErkJggg==) 32 32, auto;
 }
-.rotatable-icon {
+.im-viewer-rotatable-icon{
+    background: url('../../lib/ionicons/ios-loop-strong.svg');
+    background-size: 100% 100%;
+    background-color: rgba(200, 200, 200, 0.8);
     position: absolute;
-    height: 25px;
-    width: 25px;
-    z-index: 10;
+    display: block;
+    top: 0px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    z-index: 100;
+    opacity: 0.8;
 }
-.rotatable-prefetch{
+.im-viewer-rotatable-prefetch{
     height: 0px;
     width: 0px;
 }
-.gallery-thumbnail{
+.im-viewer-gallery-thumbnail{
     float: left;
+    background-clip: padding-box;
     display: block;
-    width: 25px;
-    height: 25px;
-    margin: 2px;
+    width: 30px;
+    height: 30px;
+    margin: 3px;
+    border-style: solid;
+    border-color: #DDDDDD;
+    border-radius: 5px;
+    border-width: 3px;
 }
-.galleries-container{
+.im-viewer-gallery-thumbnail.im-viewer-gallery-selected{
+    border-color: #00E6E6;
+}
+.im-viewer-galleries-container{
     display: block;
-    height: 29px;
+    height: 36;
 }

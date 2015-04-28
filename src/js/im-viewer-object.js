@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-// Depends on jQuery
-
+/**
+ * ImViewer Objects
+ * @requires jQuery
+ */
 (function($, Akamai) {
 
     /**
@@ -121,6 +123,7 @@
         Akamai.ViewableCollection.call(this, item, argObject);
 
         this.items = [];
+        this.galleryIndex = item.galleryIndex;
         var galleryArgObject = $.extend({}, argObject, { 
             allowInnerGallery: false,
             allowThumbnail: true 

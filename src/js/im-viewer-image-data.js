@@ -59,7 +59,7 @@
         });
 
         var asyncImageSize = new $.Deferred(function(deferred) {
-            $("<img/>")
+            $(document.createElement("img"))
                 .attr("src", self.src)
                 .load(function() {
                     self.width = this.width;
@@ -112,7 +112,7 @@
         var options = $.extend({}, defaultOptions, options);
 
         function position(image, data) {
-            var dataDiv = image.siblings(".image-data");
+            var dataDiv = image.siblings(".im-viewer-image-data");
             if (dataDiv.length > 0) {
                 dataDiv.remove();
             }
@@ -131,7 +131,8 @@
                     default:
                 }
             }
-            dataDiv = $('<div class="image-data"><span>' + info + '</div>');
+            var dataSpan = $(document.createElement("span")).html(info);
+            dataDiv = $(document.createElement("div")).addClass("im-viewer-image-data").html(dataSpan);
             image.after(dataDiv);
             
             setTimeout(function() {
@@ -162,7 +163,7 @@
 
         function hover(dataDiv) {
             if (options.hover == true) {
-                dataDiv.parent().closest("div").addClass("hover");
+                dataDiv.parent().closest("div").addClass("im-viewer-hover");
             } else {
                 dataDiv.css("display", "block");
             }

@@ -43,7 +43,6 @@
     left: 10px;
     right: 10px;
     z-index: 2;
-    background: #ddd;
     margin: 5px;
 }
 .galleria-theme-viewer .galleria-carousel .galleria-thumbnails-list {
@@ -179,6 +178,7 @@
 .galleria-theme-viewer .galleria-thumb-nav-left, .galleria-theme-viewer .galleria-thumb-nav-right {
     cursor: pointer;
     display: none;
+    background: #DDDDDD;
     background-position: -490px 15px;
     position: absolute;
     height: 60px;
@@ -243,4 +243,11 @@
 }
 .galleria-full-screen:hover, .galleria-full-screen-mobile:hover {
     color: rgb(48, 48, 48);
+}
+div.galleria-lightbox-prevholder, div.galleria-lightbox-nextholder
+{
+    width:100px;
+    height:100px;
+    top:50%;
+    margin-top:-70px;
 }

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-.image-data-wrapper {
+.im-viewer-image-data-wrapper {
     display: inline-block;
     position: relative;
 }
-div.image-data {
+div.im-viewer-image-data {
     position: absolute;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
@@ -27,13 +27,13 @@ div.image-data {
     z-index: 99999;
     pointer-events: none;
 }
-.hover .image-data {
+.im-viewer-hover .im-viewer-image-data {
     display: none !important;
 }
-.hover:hover .image-data {
+.im-viewer-hover:hover .im-viewer-image-data {
     display: block !important;
 }
-div.image-data span {
+div.im-viewer-image-data span {
     padding: 5px;
     color: white;
     display: inline-block;
