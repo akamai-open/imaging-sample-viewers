@@ -102,7 +102,7 @@
                             'class': 'img-responsive'
                         }).css('width', '100%');
                     } else {
-                        comingSoon = $(document.createElement("p")).html('Image Comming Soon.').css('width', '100%');
+                        comingSoon = $(document.createElement("p")).html('Image Not Available').css('width', '100%');
                     }
                     $(self.options.viewerSelector).append(comingSoon);
                     console.error("Error retrieving the JSON file.");
